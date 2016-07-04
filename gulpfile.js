@@ -7,6 +7,7 @@ var compass = require('gulp-compass');
 var gulpif = require('gulp-if');
 var uglify = require('gulp-uglify');
 var minifyHTML = require('gulp-minify-html');
+var jsonminify = require('gulp-jsonminify');
 var connect = require('gulp-connect');
 
 var env = process.env.NODE_ENV || 'development';
@@ -35,7 +36,7 @@ var jsSources = [
 
 var sassSources = ['components/sass/style.scss'];
 var htmlSources = [outputDir + '*.html'];
-var jsonSources = ['bulids/development/js/*.json'];
+var jsonSources = [outputDir + 'js/*.json'];
 
 gulp.task('log', function() {
     gutil.log('Workflows are awesome');
@@ -76,7 +77,7 @@ gulp.task('watch', function() {
   gulp.watch(jsSources, ['js']);
   gulp.watch('components/sass/*.scss', ['compass']);
   gulp.watch('builds/development/*.html', ['html']);
-  gulp.watch(jsonSources, ['json']);
+  gulp.watch('builds/development/js/*.json', ['json']);
 });
 
 gulp.task('connect', function() {
@@ -94,6 +95,8 @@ gulp.task('html', function() {
 });
 
 gulp.task('json', function() {
-  gulp.src(jsonSources)
+  gulp.src('builds/development/js/*.json')
+  .pipe(gulpif(env === 'production', jsonminify()))
+  .pipe(gulpif(env === 'production', gulp.dest('builds/production/js')))
   .pipe(connect.reload())
 });
